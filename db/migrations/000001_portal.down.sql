@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS bank;
+
+DROP TABLE IF EXISTS transaction;
+
+DROP TABLE IF EXISTS transfer;
