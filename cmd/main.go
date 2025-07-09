@@ -38,7 +38,7 @@ func main() {
 	store := repository.NewStore(db)
 	bank := bank.New(store)
 	chapaClient := clients.NewChapaClient(cfg.ChapaBaseUrl, cfg.ChapaSecretKey)
-	transfer := transfer.New(store, chapaClient, redis)
+	transfer := transfer.New(cfg.WebhookSecret, store, chapaClient, redis)
 
 	srv := server.NewServer(cfg.Port, bank, transfer)
 

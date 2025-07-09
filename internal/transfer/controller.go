@@ -1,14 +1,25 @@
 package transfer
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/pkg/utils"
 )
+
+func computeHMAC(body []byte, secret string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write(body)
+	return hex.EncodeToString(h.Sum(nil))
+}
 
 type Handler interface {
 	InitiateTransfer(c *gin.Context)
@@ -18,12 +29,14 @@ type Handler interface {
 }
 
 type handler struct {
-	service *Service
+	webhookSecret string
+	service       *Service
 }
 
-func NewHandler(service *Service) Handler {
+func NewHandler(webhookSecret string, service *Service) Handler {
 	return &handler{
-		service: service,
+		webhookSecret: webhookSecret,
+		service:       service,
 	}
 }
 
@@ -121,9 +134,39 @@ func (h *handler) VerifyTransfer(c *gin.Context) {
 }
 
 func (h *handler) TransferWebhook(c *gin.Context) {
-	var req Transfer
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid body",
+			"status":  "failed",
+			"data":    nil,
+		})
+		return
+	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	sig := c.GetHeader("X-Chapa-Signature")
+	if sig == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Missing signature",
+			"status":  "failed",
+			"data":    nil,
+		})
+		return
+	}
+
+	expectedSig := computeHMAC(body, h.webhookSecret)
+
+	if !hmac.Equal([]byte(sig), []byte(expectedSig)) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Invalid signature",
+			"status":  "failed",
+			"data":    nil,
+		})
+		return
+	}
+
+	var payload Transfer
+	if err := json.Unmarshal(body, &payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid payload",
 			"status":  "failed",
@@ -132,7 +175,7 @@ func (h *handler) TransferWebhook(c *gin.Context) {
 		return
 	}
 
-	err := h.service.HandleWebhook(c.Request.Context(), req)
+	err = h.service.HandleWebhook(c.Request.Context(), payload)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{

@@ -22,6 +22,7 @@ type Config struct {
 	RedisUrl       string
 	RedisPassword  string
 	Render         string
+	WebhookSecret  string
 }
 
 func NewConfig() (*Config, error) {
@@ -70,6 +71,9 @@ func (c *Config) loadEnv() error {
 
 	render := os.Getenv("RENDER")
 	c.Render = render
+
+	webhookSecret := os.Getenv("WEBHOOK_SECRET_KEY")
+	c.WebhookSecret = webhookSecret
 
 	return nil
 }
