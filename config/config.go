@@ -80,7 +80,7 @@ func (c *Config) loadEnv() error {
 }
 
 func initViper() error {
-	viper.SetConfigFile(".env")
+	// viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 	err := viper.ReadInConfig()
 	if err != nil {
