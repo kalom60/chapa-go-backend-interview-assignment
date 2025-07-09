@@ -3,12 +3,12 @@ package clients
 import "time"
 
 type TransferRequest struct {
-	Charge        float64 `json:"charge"`
-	AccountName   string  `json:"account_name"`
+	Charge        float64 `json:"charge,omitempty"`
+	AccountName   string  `json:"account_name,omitempty"`
 	AccountNumber string  `json:"account_number" binding:"required"`
 	Amount        float64 `json:"amount" binding:"required"`
-	Currency      string  `json:"currency"`
-	Reference     string  `json:"reference"`
+	Currency      string  `json:"currency,omitempty"`
+	Reference     string  `json:"reference,omitempty"`
 	BankCode      string  `json:"bank_code" binding:"required"`
 }
 
