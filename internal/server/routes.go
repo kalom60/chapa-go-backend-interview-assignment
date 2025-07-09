@@ -15,6 +15,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		tx.POST("", s.transaction.InitiateTransaction)
 		tx.GET("/verify/:tx_ref", s.transaction.VerifyTransaction)
 		tx.GET("", s.transaction.GetTransactions)
+		tx.GET("/local", s.transaction.GetAllTransactions)
 	}
 
 	tf := api.Group("/transfers")
