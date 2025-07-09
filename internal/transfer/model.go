@@ -25,7 +25,7 @@ type Transfer struct {
 }
 
 func createTransfer(transfer clients.TransferRequest, ref string) (Transfer, error) {
-	bankCode, err := strconv.Atoi(transfer.BankCode)
+	amount, err := strconv.Atoi(transfer.Amount)
 	if err != nil {
 		return Transfer{}, err
 	}
@@ -34,8 +34,8 @@ func createTransfer(transfer clients.TransferRequest, ref string) (Transfer, err
 		AccountName:   transfer.AccountName,
 		AccountNumber: transfer.AccountNumber,
 		Currency:      transfer.Currency,
-		Amount:        float64(transfer.Amount),
-		BankCode:      bankCode,
+		Amount:        float64(amount),
+		BankCode:      transfer.BankCode,
 		Status:        "proccessing",
 		Reference:     ref,
 		CreatedAt:     time.Now(),
