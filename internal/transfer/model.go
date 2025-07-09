@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
+	"github.com/Chapa-Et/chapa-go"
 )
 
 type Transfer struct {
@@ -24,8 +24,8 @@ type Transfer struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-func createTransfer(transfer clients.TransferRequest, ref string) (Transfer, error) {
-	amount, err := strconv.Atoi(transfer.Amount)
+func createTransfer(transfer *chapa.BankTransfer, ref string) (Transfer, error) {
+	bankCode, err := strconv.Atoi(transfer.BankCode)
 	if err != nil {
 		return Transfer{}, err
 	}
@@ -34,8 +34,8 @@ func createTransfer(transfer clients.TransferRequest, ref string) (Transfer, err
 		AccountName:   transfer.AccountName,
 		AccountNumber: transfer.AccountNumber,
 		Currency:      transfer.Currency,
-		Amount:        float64(amount),
-		BankCode:      transfer.BankCode,
+		Amount:        transfer.Amount,
+		BankCode:      bankCode,
 		Status:        "proccessing",
 		Reference:     ref,
 		CreatedAt:     time.Now(),

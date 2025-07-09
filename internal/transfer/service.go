@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/Chapa-Et/chapa-go"
 	"github.com/google/uuid"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/cache"
-	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -20,19 +21,19 @@ var (
 
 type Service struct {
 	transferRepo TransferRepo
-	chapa        clients.ChapaClient
+	chapaAPI     chapa.API
 	redis        cache.RedisCache
 }
 
-func NewService(transferRepo TransferRepo, chapa clients.ChapaClient, redis cache.RedisCache) *Service {
+func NewService(transferRepo TransferRepo, chapaAPI chapa.API, redis cache.RedisCache) *Service {
 	return &Service{
 		transferRepo: transferRepo,
-		chapa:        chapa,
+		chapaAPI:     chapaAPI,
 		redis:        redis,
 	}
 }
 
-func (s *Service) InitiateTransfer(ctx context.Context, transfer clients.TransferRequest) (string, error) {
+func (s *Service) InitiateTransfer(ctx context.Context, transfer *chapa.BankTransfer) (string, error) {
 	ref := uuid.New()
 
 	val, err := s.redis.Get(ref.String())
@@ -57,7 +58,7 @@ func (s *Service) InitiateTransfer(ctx context.Context, transfer clients.Transfe
 	}
 
 	transfer.Reference = ref.String()
-	resp, err := s.chapa.InitiateTransfer(transfer)
+	resp, err := s.chapaAPI.TransferToBank(transfer)
 	if err != nil {
 		return "", err
 	}
@@ -77,15 +78,15 @@ func (s *Service) InitiateTransfer(ctx context.Context, transfer clients.Transfe
 		return "", err
 	}
 
-	return ref.String(), nil
+	return resp.Data, nil
 }
 
 func (s *Service) GetAllTransfers(ctx context.Context, filter utils.Pagination) (utils.PaginatedResponseTransfers[Transfer], error) {
 	return s.transferRepo.GetAllTransfers(ctx, filter)
 }
 
-func (s *Service) VerifyTransfer(ref string) (*clients.VerifyResponse, error) {
-	return s.chapa.VerifyTransfer(ref)
+func (s *Service) VerifyTransfer(ref string) (*chapa.VerifyResponse, error) {
+	return s.chapaAPI.Verify(ref)
 }
 
 func (s *Service) HandleWebhook(ctx context.Context, transfer Transfer) error {

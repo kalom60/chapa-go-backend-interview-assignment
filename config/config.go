@@ -4,6 +4,8 @@ import (
 	"errors"
 	"os"
 	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 var (
@@ -48,12 +50,6 @@ func (c *Config) loadEnv() error {
 	}
 	c.DbUrl = dbUrl
 
-	chapaSecretKey := os.Getenv("CHAPA_SECRET_KEY")
-	if chapaSecretKey == "" {
-		return ErrInvalidChapaSecretKey
-	}
-	c.ChapaSecretKey = chapaSecretKey
-
 	chapaBaseUrl := os.Getenv("CHAPA_BASE_URL")
 	if chapaBaseUrl == "" {
 		return ErrInvalidChapaBaseUrl
@@ -74,6 +70,22 @@ func (c *Config) loadEnv() error {
 
 	webhookSecret := os.Getenv("WEBHOOK_SECRET_KEY")
 	c.WebhookSecret = webhookSecret
+
+	err = initViper()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initViper() error {
+	viper.SetConfigFile(".env")
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

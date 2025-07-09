@@ -12,10 +12,11 @@ import (
 	"github.com/kalom60/chapa-go-backend-interview-assignment/config"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/bank"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/cache"
-	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/repository"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/server"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/transfer"
+
+	chapa "github.com/Chapa-Et/chapa-go"
 )
 
 func main() {
@@ -37,8 +38,8 @@ func main() {
 
 	store := repository.NewStore(db)
 	bank := bank.New(store)
-	chapaClient := clients.NewChapaClient(cfg.ChapaBaseUrl, cfg.ChapaSecretKey)
-	transfer := transfer.New(cfg.WebhookSecret, store, chapaClient, redis)
+	chapaAPI := chapa.New()
+	transfer := transfer.New(cfg.WebhookSecret, store, chapaAPI, redis)
 
 	srv := server.NewServer(cfg.Port, bank, transfer)
 

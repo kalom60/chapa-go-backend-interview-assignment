@@ -10,8 +10,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/Chapa-Et/chapa-go"
 	"github.com/gin-gonic/gin"
-	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/pkg/utils"
 )
 
@@ -24,6 +24,7 @@ func computeHMAC(body []byte, secret string) string {
 type Handler interface {
 	InitiateTransfer(c *gin.Context)
 	GetAllTransfers(c *gin.Context)
+	GetAllTransfersFromChapa(c *gin.Context)
 	VerifyTransfer(c *gin.Context)
 	TransferWebhook(c *gin.Context)
 }
@@ -41,7 +42,7 @@ func NewHandler(webhookSecret string, service *Service) Handler {
 }
 
 func (h *handler) InitiateTransfer(c *gin.Context) {
-	var req clients.TransferRequest
+	var req chapa.BankTransfer
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -52,7 +53,7 @@ func (h *handler) InitiateTransfer(c *gin.Context) {
 		return
 	}
 
-	ref, err := h.service.InitiateTransfer(c.Request.Context(), req)
+	ref, err := h.service.InitiateTransfer(c.Request.Context(), &req)
 	if err != nil {
 		if errors.Is(err, ErrDuplicateTransfer) {
 			c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -114,7 +115,7 @@ func (h *handler) GetAllTransfers(c *gin.Context) {
 }
 
 func (h *handler) VerifyTransfer(c *gin.Context) {
-	ref := c.Query("ref")
+	ref := c.Param("ref")
 
 	tf, err := h.service.VerifyTransfer(ref)
 	if err != nil {
