@@ -1,0 +1,253 @@
+{
+	"info": {
+		"_postman_id": "2254a96c-48a0-43dd-9244-92efa7d57da7",
+		"name": "Chapa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16402862"
+	},
+	"item": [
+		{
+			"name": "Banks",
+			"item": [
+				{
+					"name": "Get all banks",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/banks",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"banks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get bank by bank id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/banks/130",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"banks",
+								"130"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transfers",
+			"item": [
+				{
+					"name": "Initiate Transfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account_name\": \"Kaleab Tesfaye\",\n    \"account_number\": \"1000259906842\",\n    \"amount\": 1,\n    \"currency\": \"ETB\",\n    \"bank_code\": \"946\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transfers",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transfers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Transfer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transfers/verify/f353ad55-67db-4a00-b718-265a07ec2d49",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transfers",
+								"verify",
+								"f353ad55-67db-4a00-b718-265a07ec2d49"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Transfers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transfers/chapa",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transfers",
+								"chapa"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Initiate Transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\":         5,\n    \"currency\":       \"ETB\",\n    \"firstname\":      \"Chapa\",\n    \"lastname\":       \"Demo\",\n    \"email\":          \"Demo@gmail.com\",\n    \"callback_url\":    \"https://www.google.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transactions",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Transaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transactions/verify/1c8de7ca-1d48-4ea3-9083-2052f074bc77",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"verify",
+								"1c8de7ca-1d48-4ea3-9083-2052f074bc77"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transactions",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Local Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://chapa-go-backend-interview-assignment.onrender.com/api/transactions/local",
+							"protocol": "https",
+							"host": [
+								"chapa-go-backend-interview-assignment",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"local"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
