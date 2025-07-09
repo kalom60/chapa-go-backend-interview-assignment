@@ -30,7 +30,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	api.POST("/webhooks/transactions")
-	api.POST("/webhooks/transfers")
+	api.POST("/webhooks/transfers", s.transfer.TransferWebhook)
 
 	return r
 }

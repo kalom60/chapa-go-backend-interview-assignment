@@ -88,3 +88,64 @@ func (repo *Store) GetAllTransfers(ctx context.Context, filter utils.Pagination)
 
 	return response, nil
 }
+func (repo *Store) UpdateTransfer(ctx context.Context, tr transfer.Transfer) error {
+	_, err := repo.queries.UpdateTransfer(ctx, gen.UpdateTransferParams{
+		Reference: pgtype.Text{
+			String: tr.Reference,
+			Valid:  true,
+		},
+		AccountName:    tr.AccountName,
+		AccountNumber:  tr.AccountNumber,
+		Currency:       tr.Currency,
+		Amount:         tr.Amount,
+		Charge:         tr.Charge,
+		TransferType:   tr.TransferType,
+		ChapaReference: tr.ChapaReference,
+		BankCode:       int32(tr.BankCode),
+		BankName:       tr.BankName,
+		BankReference: pgtype.Text{
+			String: tr.BankReference,
+			Valid:  true,
+		},
+		Status: tr.Status,
+		CreatedAt: pgtype.Timestamp{
+			Time:  tr.CreatedAt,
+			Valid: true,
+		},
+		UpdatedAt: pgtype.Timestamp{
+			Time:  tr.UpdatedAt,
+			Valid: true,
+		},
+	})
+
+	return err
+}
+
+func (repo *Store) GetTransferByRef(ctx context.Context, ref string) (transfer.Transfer, error) {
+	row, err := repo.queries.GetTransferByRef(ctx, pgtype.Text{
+		String: ref,
+		Valid:  true,
+	})
+	if err != nil {
+		return transfer.Transfer{}, nil
+	}
+
+	tr := transfer.Transfer{
+		AccountName:    row.AccountName,
+		AccountNumber:  row.AccountNumber,
+		Currency:       row.Currency,
+		Amount:         float64(row.Amount),
+		Charge:         float64(row.Charge),
+		TransferType:   row.TransferType,
+		ChapaReference: row.ChapaReference,
+		BankCode:       int(row.BankCode),
+		BankName:       row.BankName,
+		BankReference:  row.BankReference.String,
+		Status:         row.Status,
+		Reference:      row.Reference.String,
+		CreatedAt:      row.CreatedAt.Time,
+		UpdatedAt:      row.UpdatedAt.Time,
+	}
+
+	return tr, nil
+}

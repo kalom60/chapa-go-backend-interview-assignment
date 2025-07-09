@@ -2,6 +2,7 @@ package transfer
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/cache"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/pkg/utils"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -33,7 +35,14 @@ func NewService(transferRepo TransferRepo, chapa clients.ChapaClient, redis cach
 func (s *Service) InitiateTransfer(ctx context.Context, transfer clients.TransferRequest) (string, error) {
 	ref := uuid.New()
 
-	if _, err := s.redis.Get(ref.String()); err != nil {
+	val, err := s.redis.Get(ref.String())
+	if err != nil {
+		if err != redis.Nil {
+			return "", err
+		}
+	}
+
+	if val != nil {
 		return "", ErrDuplicateTransfer
 	}
 
@@ -77,4 +86,31 @@ func (s *Service) GetAllTransfers(ctx context.Context, filter utils.Pagination) 
 
 func (s *Service) VerifyTransfer(ref string) (*clients.VerifyResponse, error) {
 	return s.chapa.VerifyTransfer(ref)
+}
+
+func (s *Service) HandleWebhook(ctx context.Context, transfer Transfer) error {
+	if _, err := s.redis.Get(transfer.Reference); err != nil {
+		if err == redis.Nil {
+			_, err := s.transferRepo.GetTransferByRef(ctx, transfer.Reference)
+			if err != nil {
+				if errors.Is(err, sql.ErrNoRows) {
+					return err
+				}
+				return err
+			}
+		}
+		return err
+	}
+
+	err := s.transferRepo.UpdateTransfer(ctx, transfer)
+	if err != nil {
+		return err
+	}
+
+	err = s.redis.Delete(transfer.Reference)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

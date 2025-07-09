@@ -1,6 +1,7 @@
 package transfer
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 
@@ -13,6 +14,7 @@ type Handler interface {
 	InitiateTransfer(c *gin.Context)
 	GetAllTransfers(c *gin.Context)
 	VerifyTransfer(c *gin.Context)
+	TransferWebhook(c *gin.Context)
 }
 
 type handler struct {
@@ -115,5 +117,41 @@ func (h *handler) VerifyTransfer(c *gin.Context) {
 		"message": tf.Message,
 		"status":  tf.Status,
 		"data":    tf.Data,
+	})
+}
+
+func (h *handler) TransferWebhook(c *gin.Context) {
+	var req Transfer
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid payload",
+			"status":  "failed",
+			"data":    nil,
+		})
+		return
+	}
+
+	err := h.service.HandleWebhook(c.Request.Context(), req)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"message": "Trandfer not found",
+				"status":  "failed",
+				"data":    nil,
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to update transfer",
+			"status":  "failed",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "status updated",
+		"status":  "success",
 	})
 }
