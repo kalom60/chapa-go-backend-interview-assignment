@@ -18,8 +18,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	tf := api.Group("/transfers")
 	{
-		tf.POST("")
-		tf.GET("/verify/:transfer_id")
+		tf.POST("", s.transfer.InitiateTransfer)
+		tf.GET("/verify/:ref", s.transfer.VerifyTransfer)
+		tf.GET("", s.transfer.GetAllTransfers)
 	}
 
 	bk := api.Group("/banks")

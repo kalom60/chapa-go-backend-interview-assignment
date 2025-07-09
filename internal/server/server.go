@@ -6,17 +6,20 @@ import (
 	"time"
 
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/bank"
+	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/transfer"
 )
 
 type Server struct {
-	port int
-	bank bank.Handler
+	port     int
+	bank     bank.Handler
+	transfer transfer.Handler
 }
 
-func NewServer(port int, bank bank.Handler) *http.Server {
+func NewServer(port int, bank bank.Handler, transfer transfer.Handler) *http.Server {
 	NewServer := &Server{
-		port: port,
-		bank: bank,
+		port:     port,
+		bank:     bank,
+		transfer: transfer,
 	}
 
 	server := &http.Server{

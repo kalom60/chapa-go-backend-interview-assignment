@@ -11,8 +11,11 @@ import (
 
 	"github.com/kalom60/chapa-go-backend-interview-assignment/config"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/bank"
+	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/cache"
+	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/clients"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/repository"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/server"
+	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/transfer"
 )
 
 func main() {
@@ -27,24 +30,33 @@ func main() {
 	}
 	defer closeDB()
 
+	redis, err := cache.NewRedis(cfg.RedisUrl, cfg.RedisPassword)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	store := repository.NewStore(db)
 	bank := bank.New(store)
+	chapaClient := clients.NewChapaClient(cfg.ChapaBaseUrl, cfg.ChapaSecretKey)
+	transfer := transfer.New(store, chapaClient, redis)
 
-	srv := server.NewServer(cfg.Port, bank)
+	srv := server.NewServer(cfg.Port, bank, transfer)
 
 	shutdownError := make(chan error)
 
-	go func() {
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
+	if cfg.Render != "true" {
+		go func() {
+			quit := make(chan os.Signal, 1)
+			signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+			<-quit
 
-		log.Println("shutting down server...")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+			log.Println("shutting down server...")
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
 
-		shutdownError <- srv.Shutdown(ctx)
-	}()
+			shutdownError <- srv.Shutdown(ctx)
+		}()
+	}
 
 	err = srv.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
