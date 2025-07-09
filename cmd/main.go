@@ -14,6 +14,7 @@ import (
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/cache"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/repository"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/server"
+	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/transaction"
 	"github.com/kalom60/chapa-go-backend-interview-assignment/internal/transfer"
 
 	chapa "github.com/Chapa-Et/chapa-go"
@@ -40,8 +41,9 @@ func main() {
 	bank := bank.New(store)
 	chapaAPI := chapa.New()
 	transfer := transfer.New(cfg.WebhookSecret, store, chapaAPI, redis)
+	transaction := transaction.New(cfg.WebhookSecret, store, chapaAPI, redis)
 
-	srv := server.NewServer(cfg.Port, bank, transfer)
+	srv := server.NewServer(cfg.Port, bank, transfer, transaction)
 
 	shutdownError := make(chan error)
 

@@ -43,7 +43,7 @@ func (repo *Store) CreateTransfer(ctx context.Context, transfer transfer.Transfe
 }
 
 func (repo *Store) GetAllTransfers(ctx context.Context, filter utils.Pagination) (utils.PaginatedResponseTransfers[transfer.Transfer], error) {
-	count, err := repo.queries.CountBanks(ctx)
+	count, err := repo.queries.CountTransfers(ctx)
 	if err != nil {
 		return utils.PaginatedResponseTransfers[transfer.Transfer]{}, err
 	}
@@ -56,9 +56,9 @@ func (repo *Store) GetAllTransfers(ctx context.Context, filter utils.Pagination)
 		return utils.PaginatedResponseTransfers[transfer.Transfer]{}, err
 	}
 
-	banks := make([]transfer.Transfer, 0, len(rows))
+	trs := make([]transfer.Transfer, 0, len(rows))
 	for _, row := range rows {
-		banks = append(banks, transfer.Transfer{
+		trs = append(trs, transfer.Transfer{
 			AccountName:    row.AccountName,
 			AccountNumber:  row.AccountNumber,
 			Currency:       row.Currency,
@@ -77,7 +77,7 @@ func (repo *Store) GetAllTransfers(ctx context.Context, filter utils.Pagination)
 	}
 
 	response := utils.PaginatedResponseTransfers[transfer.Transfer]{
-		Transfers: banks,
+		Transfers: trs,
 		Meta: utils.Meta{
 			ItemsPerPage: filter.PageSize,
 			TotalItems:   count,

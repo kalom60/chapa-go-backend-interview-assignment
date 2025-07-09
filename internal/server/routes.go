@@ -12,8 +12,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	tx := api.Group("/transactions")
 	{
-		tx.POST("")
-		tx.GET("/verify/:tx_ref")
+		tx.POST("", s.transaction.InitiateTransaction)
+		tx.GET("/verify/:tx_ref", s.transaction.VerifyTransaction)
+		tx.GET("", s.transaction.GetTransactions)
 	}
 
 	tf := api.Group("/transfers")
@@ -29,7 +30,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		bk.GET("/:id", s.bank.GetBankByBankID)
 	}
 
-	api.POST("/webhooks/transactions")
+	api.POST("/webhooks/transactions", s.transaction.TransactionWebhook)
 	api.POST("/webhooks/transfers", s.transfer.TransferWebhook)
 
 	return r
